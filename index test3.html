@@ -1,0 +1,433 @@
+<title>Test 3 · Bases d'electricitat FGC</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+/* Concepte: quadre de comandament ferroviari. Blau de senyalització, verd/vermell/groc només per a l'estat. */
+:root {
+  --bg: #EDF0F5; --surface: #FFFFFF; --surface-2: #F4F6FA; --fg: #0F1B2D; --muted: #53607A; --line: #D3DAE6;
+  --accent: #0B3C7A; --accent-fg: #FFFFFF;
+  --ok: #14663A; --ok-bg: #DDF3E5; --bad: #A3261C; --bad-bg: #FBE3E0; --warn: #7A4F00; --warn-bg: #FFF0CC;
+  --f-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --f-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0C1420; --surface: #141F30; --surface-2: #1A2740; --fg: #E7ECF5; --muted: #9AA8BF; --line: #26354D;
+    --accent: #7FB0FF; --accent-fg: #07182F;
+    --ok: #6FD39A; --ok-bg: #123325; --bad: #FF8A80; --bad-bg: #3A1815; --warn: #F2C14E; --warn-bg: #3A2D0A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0C1420; --surface: #141F30; --surface-2: #1A2740; --fg: #E7ECF5; --muted: #9AA8BF; --line: #26354D;
+  --accent: #7FB0FF; --accent-fg: #07182F;
+  --ok: #6FD39A; --ok-bg: #123325; --bad: #FF8A80; --bad-bg: #3A1815; --warn: #F2C14E; --warn-bg: #3A2D0A;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 16px; line-height: 1.5; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+button { font: inherit; color: inherit; }
+.wrap { max-width: 760px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 16px 40px; }
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line); }
+.top-in { max-width: 760px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px)); }
+.brand { font-family: var(--f-display); font-weight: 700; font-size: 20px; letter-spacing: .02em; text-transform: uppercase; display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.brand small { font-family: var(--f-body); font-weight: 500; font-size: 12px; color: var(--muted); text-transform: none; letter-spacing: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tabs { display: flex; gap: 4px; }
+.tab { border: 1px solid var(--line); background: transparent; border-radius: 6px; padding: 6px 12px; font-weight: 600; font-size: 14px; cursor: pointer; min-height: 36px; }
+.tab[aria-selected="true"] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 700; line-height: 1.1; margin: 0; text-wrap: balance; }
+h1 { font-size: 34px; text-transform: uppercase; letter-spacing: .01em; }
+h2 { font-size: 24px; }
+h3 { font-size: 19px; }
+.lead { color: var(--muted); margin: 8px 0 0; max-width: 62ch; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+[hidden] { display: none !important; }
+.stack { display: grid; gap: 16px; }
+.row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.label { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.modes { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.mode { display: block; position: relative; border: 2px solid var(--line); border-radius: 10px; padding: 12px 14px; cursor: pointer; background: var(--surface-2); }
+.mode input { position: absolute; opacity: 0; }
+.mode:has(input:checked) { border-color: var(--accent); background: var(--surface); }
+.mode:has(input:focus-visible) { outline: 3px solid var(--accent); outline-offset: 2px; }
+.mode b { font-family: var(--f-display); font-size: 20px; display: block; }
+.mode span { color: var(--muted); font-size: 14px; }
+select, .btn, .chip { min-height: 44px; }
+select { width: 100%; border: 1px solid var(--line); background: var(--surface-2); color: var(--fg); border-radius: 8px; padding: 8px 10px; font: inherit; }
+.check { display: flex; gap: 10px; align-items: center; min-height: 44px; cursor: pointer; }
+.check input { width: 20px; height: 20px; accent-color: var(--accent); }
+.btn { border: 2px solid var(--accent); background: var(--accent); color: var(--accent-fg); border-radius: 8px; padding: 10px 18px; font-weight: 600; font-size: 16px; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--fg); border-color: var(--line); }
+.btn.ghost:hover { border-color: var(--accent); }
+.btn:disabled { opacity: .4; cursor: default; }
+.btn:focus-visible, .tab:focus-visible, .opt:focus-visible, .nav-n:focus-visible, .chip:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.grow { flex: 1 1 160px; }
+.progress { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.progress > i { display: block; height: 100%; background: var(--accent); transition: width .2s; }
+.q-meta { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.q-n { font-family: var(--f-display); font-size: 22px; font-weight: 700; }
+.q-text { font-size: 19px; font-weight: 500; line-height: 1.4; margin: 12px 0 14px; }
+.opts { display: grid; gap: 10px; }
+.opt { display: flex; gap: 12px; align-items: flex-start; text-align: left; width: 100%; background: var(--surface); border: 2px solid var(--line); border-radius: 10px; padding: 12px; min-height: 52px; cursor: pointer; }
+.opt-l { flex: none; width: 30px; height: 30px; border-radius: 6px; display: grid; place-items: center; background: var(--surface-2); border: 1px solid var(--line); font-family: var(--f-display); font-weight: 700; font-size: 17px; }
+.opt-t { min-width: 0; overflow-wrap: anywhere; padding-top: 2px; }
+.opt:hover:not(:disabled) { border-color: var(--accent); }
+.opt.sel { border-color: var(--accent); background: var(--surface-2); }
+.opt.sel .opt-l { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.opt.ok { border-color: var(--ok); background: var(--ok-bg); }
+.opt.ok .opt-l { background: var(--ok); color: var(--surface); border-color: var(--ok); }
+.opt.bad { border-color: var(--bad); background: var(--bad-bg); }
+.opt.bad .opt-l { background: var(--bad); color: var(--surface); border-color: var(--bad); }
+.opt:disabled { cursor: default; color: var(--fg); }
+.fb { border-radius: 10px; padding: 14px; margin-top: 14px; border: 1px solid var(--line); background: var(--surface-2); }
+.fb.good { border-color: var(--ok); background: var(--ok-bg); }
+.fb.wrong { border-color: var(--bad); background: var(--bad-bg); }
+.fb p { margin: 6px 0 0; }
+.where { margin-top: 10px; font-size: 14px; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 8px; }
+.where b { color: var(--fg); }
+.navgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); gap: 6px; }
+.nav-n { min-height: 38px; border: 1px solid var(--line); background: var(--surface); border-radius: 6px; font-weight: 600; cursor: pointer; font-variant-numeric: tabular-nums; }
+.nav-n.done { background: var(--surface-2); border-color: var(--accent); }
+.nav-n.ok { background: var(--ok-bg); border-color: var(--ok); }
+.nav-n.bad { background: var(--bad-bg); border-color: var(--bad); }
+.nav-n.cur { outline: 3px solid var(--accent); outline-offset: 1px; }
+.confirm { border: 2px solid var(--warn); background: var(--warn-bg); border-radius: 10px; padding: 14px; }
+.score { display: grid; gap: 12px; }
+.grade { font-family: var(--f-display); font-weight: 700; font-size: 72px; line-height: 1; font-variant-numeric: tabular-nums; }
+.grade small { font-size: 28px; color: var(--muted); }
+.pill { display: inline-block; font-weight: 700; font-size: 14px; letter-spacing: .06em; text-transform: uppercase; padding: 4px 12px; border-radius: 999px; }
+.pill.pass { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok); }
+.pill.fail { background: var(--bad-bg); color: var(--bad); border: 1px solid var(--bad); }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+.stat { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.stat b { display: block; font-family: var(--f-display); font-size: 28px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.bars { display: grid; gap: 10px; }
+.bar-h { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; }
+.bar { height: 10px; border-radius: 5px; background: var(--line); overflow: hidden; margin-top: 4px; }
+.bar > i { display: block; height: 100%; background: var(--ok); }
+.bar.low > i { background: var(--bad); }
+.bar.mid > i { background: var(--warn); }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 14px; font-weight: 600; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.rev { display: grid; gap: 12px; }
+.rev-item { background: var(--surface); border: 1px solid var(--line); border-left: 6px solid var(--bad); border-radius: 10px; padding: 14px; }
+.rev-item.okk { border-left-color: var(--ok); }
+.rev-item.blk { border-left-color: var(--warn); }
+.rev-item .tag { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.rev-item .qt { font-weight: 600; margin: 4px 0 8px; }
+.ans { font-size: 15px; margin: 4px 0; overflow-wrap: anywhere; }
+.ans .yes { color: var(--ok); font-weight: 700; }
+.ans .no { color: var(--bad); font-weight: 700; }
+.note { font-size: 14px; color: var(--muted); }
+.note a { color: var(--accent); }
+.dev { display: grid; gap: 14px; }
+textarea { width: 100%; min-height: 120px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-2); color: var(--fg); padding: 10px; font: inherit; resize: vertical; }
+.model { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 10px; }
+.model ul { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 6px; }
+.dev-ref { font-size: 13px; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { .progress > i { transition: none; } }
+@media (max-width: 480px) { h1 { font-size: 28px; } .grade { font-size: 60px; } .q-text { font-size: 18px; } }
+@media (max-width: 480px) { .brand small { display: none; } }
+</style>
+
+<header class="top"><div class="top-in">
+  <div class="brand">Elèctric <small>Bases d'electricitat FGC</small></div>
+  <div class="tabs" role="tablist">
+    <button class="tab" id="tab-test" role="tab" aria-selected="true" type="button">Test</button>
+    <button class="tab" id="tab-dev" role="tab" aria-selected="false" type="button">Desenvolupament</button>
+  </div>
+</div></header>
+
+<main class="wrap">
+
+<section id="v-home" class="stack">
+  <div>
+    <h1>Simulacre de test</h1>
+    <p class="lead">Test 3: preguntes noves (no repetides dels tests 1 i 2) sobre el manual «Bases d'electricitat» d'FGC. Mode examen (nota amb penalització) i mode estudi (resposta i explicació al moment), per capítols. A cada error, l'explicació i l'apartat i la pàgina exactes del manual on trobar-ho.</p>
+  </div>
+  <div class="card stack">
+    <div class="label">Mode</div>
+    <div class="modes">
+      <label class="mode"><input type="radio" name="mode" value="exam" checked><b>Examen</b><span>Sense pistes. Corregeix al final amb la nota real: encert +1, error −0,25, en blanc 0.</span></label>
+      <label class="mode"><input type="radio" name="mode" value="study"><b>Estudi</b><span>Respostes i explicació al moment, pregunta a pregunta.</span></label>
+    </div>
+    <div>
+      <label class="label" for="sel-bloc">Capítol del manual</label>
+      <select id="sel-bloc"></select>
+    </div>
+    <div><label class="label" for="sel-n">Quantes preguntes</label><select id="sel-n"><option value="0">Totes les del capítol</option><option value="50">50 a l'atzar</option><option value="25">25 a l'atzar</option><option value="10">10 a l'atzar</option></select></div>
+    <label class="check"><input type="checkbox" id="chk-shuffle" checked> Barrejar l'ordre de les preguntes</label>
+    <div class="row">
+      <button class="btn grow" id="btn-start" type="button">Començar</button>
+      <button class="btn ghost grow" id="btn-resume" type="button" hidden>Continuar el test</button>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Com es puntua</h3>
+    <p class="note" style="margin:8px 0 0">Mateix criteri que les bases de la convocatòria de maquinista d'FGC 2023: cada encert suma 1, cada error resta 0,25 i en blanc val 0. L'objectiu d'aquest simulacre és una nota de <b>7 sobre 10 o més</b>. Si dubtes entre dues opcions, pensa què pots justificar amb el manual.</p>
+  </div>
+</section>
+
+<section id="v-quiz" class="stack" hidden>
+  <div class="card">
+    <div class="q-meta"><span class="q-n" id="q-count"></span><span class="label" id="q-sec"></span></div>
+    <div class="progress" style="margin-top:10px" aria-hidden="true"><i id="q-bar"></i></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="opts" id="q-opts"></div>
+    <div id="q-fb" hidden></div>
+  </div>
+  <div class="row">
+    <button class="btn ghost grow" id="btn-prev" type="button">Anterior</button>
+    <button class="btn grow" id="btn-next" type="button">Següent</button>
+  </div>
+  <div id="confirm" class="confirm" hidden>
+    <b id="confirm-t"></b>
+    <div class="row" style="margin-top:10px">
+      <button class="btn grow" id="btn-confirm" type="button">Corregir ara</button>
+      <button class="btn ghost grow" id="btn-back" type="button">Seguir revisant</button>
+    </div>
+  </div>
+  <div class="card stack">
+    <div class="label">Navegador de preguntes</div>
+    <div class="navgrid" id="navgrid"></div>
+    <div class="row">
+      <button class="btn ghost grow" id="btn-finish" type="button">Finalitzar i corregir</button>
+      <button class="btn ghost grow" id="btn-home" type="button">Sortir al menú</button>
+    </div>
+  </div>
+</section>
+
+<section id="v-result" class="stack" hidden>
+  <div class="card score" id="res-card"></div>
+  <div class="card stack"><h3>Resultat per blocs</h3><div class="bars" id="res-bars"></div></div>
+  <div class="stack">
+    <h2>Revisió de respostes</h2>
+    <div class="chips" id="res-filter">
+      <button class="chip" data-f="fail" aria-pressed="true" type="button">Errors i en blanc</button>
+      <button class="chip" data-f="ok" aria-pressed="false" type="button">Encerts</button>
+      <button class="chip" data-f="all" aria-pressed="false" type="button">Totes</button>
+    </div>
+    <div class="rev" id="res-list"></div>
+  </div>
+  <div class="row">
+    <button class="btn grow" id="btn-retry" type="button">Repetir errors i en blanc</button>
+    <button class="btn ghost grow" id="btn-new" type="button">Nou test</button>
+  </div>
+  <p class="note">Les pàgines indicades són les del PDF del manual «Bases d'electricitat», que coincideixen amb el número imprès al peu del document.</p>
+</section>
+
+<section id="v-dev" class="stack" hidden>
+  <div>
+    <h1>Desenvolupament</h1>
+    <p class="lead">Escriu la teva resposta abans de mirar el model. Cada pregunta es valora sobre 10 punts segons els punts clau.</p>
+  </div>
+  <div class="dev" id="dev-list"></div>
+</section>
+
+</main>
+
+<script>
+(function () {
+  var D = {"q": [{"sec": 3, "text": "Quin motiu va fer que els motors de corrent continu s'utilitzessin molt en la tracció ferroviària?", "opts": ["Un manteniment barat i un rendiment més alt que l'altern", "No necessitar escombretes ni delgues per funcionar", "Poder treballar directament amb corrent altern trifàsic", "Bon par a l'arrencada i facilitat per regular la velocitat"], "ans": 3, "expl": "El manual atribueix l'ús ferroviari antic dels motors CC a les seves bones característiques de par a l'arrencada i a la facilitat de regular-ne la velocitat.", "loc": "Bases d'electricitat, cap. 3, 3.3 Motors elèctrics de corrent continu (pàg. 35)"}, {"sec": 5, "text": "Quina funció té el feeder d'acompanyament?", "opts": ["Substituir el feeder positiu quan aquest queda sense tensió", "Reforçar l'alimentació en trams de molta demanda", "Aïllar elèctricament les seccions de catenària entre si", "Retornar el corrent cap a les subestacions de tracció"], "ans": 1, "expl": "És un segon cable, en paral·lel al feeder positiu, per reforçar l'alimentació en trams amb molta demanda de corrent.", "loc": "Bases d'electricitat, cap. 5, 5.4 Feeder (pàg. 49)"}, {"sec": 6, "text": "Què fa un relé temporitzat a la connexió?", "opts": ["Tanca o obre els contactes passat un temps determinat", "Tanca els contactes sense cap retard en rebre l'impuls", "Obre els contactes només davant d'un curtcircuit", "Manté els contactes tancats i després els obre"], "ans": 0, "expl": "Els relés temporitzats a la connexió tanquen o obren els contactes passat un temps determinat.", "loc": "Bases d'electricitat, cap. 6, 6.5 Relés (pàg. 58)"}, {"sec": 5, "text": "Què és la mènsula d'una catenària?", "opts": ["L'element ceràmic que aïlla el pal de l'estructura electrificada", "El braç que surt del pal i subjecta la catenària", "El cable que uneix el sustentador amb els fils de contacte", "El braç que fa perdre la linealitat amb l'eix de la via"], "ans": 1, "expl": "El manual defineix la mènsula com el braç que surt del pal i subjecta la catenària; els altres són l'aïllador, el braç d'atirantat i les pèndoles.", "loc": "Bases d'electricitat, cap. 5, 5.5 Catenària (pàg. 50)"}, {"sec": 3, "text": "Per què es diu que un transformador és una màquina estàtica?", "opts": ["Perquè només funciona amb corrent continu", "Perquè no té parts en moviment", "Perquè no genera cap camp magnètic", "Perquè no necessita cap nucli"], "ans": 1, "expl": "El manual el defineix com una màquina elèctrica estàtica, és a dir, sense parts en moviment.", "loc": "Bases d'electricitat, cap. 3, 3.6 Transformadors (pàg. 41)"}, {"sec": 3, "text": "Quina característica ha de tenir l'entreferro d'un motor elèctric?", "opts": ["Ha de ser el màxim possible", "Ha d'estar ple d'oli aïllant", "Ha de variar segons la càrrega", "Ha de ser el mínim possible"], "ans": 3, "expl": "Segons el manual, l'espai d'aire que separa rotor i estator ha de ser el mínim possible.", "loc": "Bases d'electricitat, cap. 3, 3.2 Parts fonamentals d'un motor elèctric (pàg. 32)"}, {"sec": 4, "text": "Per què la majoria de tacòmetres actuals són digitals?", "opts": ["Perquè mesuren la tensió i la intensitat", "Perquè no necessiten alimentació", "Perquè són més barats d'instal·lar", "Perquè són molt més precisos"], "ans": 3, "expl": "El manual diu que en l'actualitat la majoria de tacòmetres són digitals perquè són molt més precisos.", "loc": "Bases d'electricitat, cap. 4, 4.4 Tacòmetre (pàg. 45)"}, {"sec": 3, "text": "De què està formada una xarxa monofàsica i de què una de trifàsica, respectivament?", "opts": ["D'una fase i un neutre; de tres fases i un neutre", "D'un neutre i dues fases; de quatre fases i un neutre", "De dues fases i un neutre; de tres fases sense neutre", "D'una fase i dues terres; de tres fases i dues terres"], "ans": 0, "expl": "El manual defineix la xarxa monofàsica amb una fase i un neutre, i la trifàsica amb tres fases i un neutre.", "loc": "Bases d'electricitat, cap. 3, 3.4 Motors elèctrics de corrent altern (pàg. 35)"}, {"sec": 2, "text": "Com són els pols magnètics de la Terra respecte dels pols geogràfics?", "opts": ["Propers als geogràfics, però no coincidents", "Situats sobre l'equador terrestre", "Coincidents exactament amb els geogràfics", "Inexistents, perquè la Terra no és un imant"], "ans": 0, "expl": "La Terra actua com un gran imant amb els pols magnètics propers als geogràfics, però no coincidents.", "loc": "Bases d'electricitat, cap. 2, 2.2 Magnetisme (pàg. 22)"}, {"sec": 1, "text": "Quina funció tenen les resistències dissipadores instal·lades a la part superior d'una unitat d'FGC?", "opts": ["Emmagatzemar l'excés de corrent per a l'arrencada", "Transformar l'energia elèctrica en energia mecànica", "Absorbir l'excés de corrent i transformar-lo en calor", "Augmentar la tensió del corrent que arriba als motors"], "ans": 2, "expl": "Absorbeixen l'excés de corrent i el transformen en calor, que es cedeix a l'ambient, per evitar un escalfament excessiu.", "loc": "Bases d'electricitat, cap. 1, 1.7.2 Llei de Joule (pàg. 19)"}, {"sec": 3, "text": "Per a quin rang de potències s'utilitzen en general els motors monofàsics?", "opts": ["Grans potències, en general superiors a 100 kW", "Potències mitjanes, en general entre 1 i 10 kW", "Petites potències, en general inferiors a 1 kW", "Qualsevol potència, sense cap mena de límit"], "ans": 2, "expl": "El manual diu que els monofàsics s'usen per a petites potències, en general inferiors a 1 kW.", "loc": "Bases d'electricitat, cap. 3, 3.4 Motors elèctrics de corrent altern (pàg. 37)"}, {"sec": 3, "text": "A què estan connectats els debanats del rotor d'un motor asíncron trifàsic de rotor bobinat?", "opts": ["A un condensador i a un interruptor centrífug", "Als debanats de l'estator mitjançant l'entreferro", "A anells col·lectors muntats sobre el mateix eix", "A un commutador de delgues fix a la carcassa"], "ans": 2, "expl": "El manual indica que els debanats del rotor bobinat es connecten a anells col·lectors muntats sobre el mateix eix.", "loc": "Bases d'electricitat, cap. 3, 3.4 Motor amb rotor bobinat (pàg. 39)"}, {"sec": 1, "text": "Quin d'aquests materials és un aïllant, segons el manual?", "opts": ["El coure", "El vidre", "L'aigua", "L'alumini"], "ans": 1, "expl": "Els aïllants (fusta, vidre, ceràmics) tenen resistivitat alta; l'aigua, l'alumini i el coure són conductors.", "loc": "Bases d'electricitat, cap. 1, 1.6 Resistències elèctriques (pàg. 16)"}, {"sec": 3, "text": "Quin avantatge té la posició inclinada de les ranures del rotor en gàbia d'esquirol?", "opts": ["Elimina el lliscament i els anells col·lectors", "Augmenta la velocitat i redueix la potència", "Millora l'arrencada i disminueix els sorolls", "Permet connectar el rotor amb l'exterior"], "ans": 2, "expl": "Segons el manual, la inclinació de les ranures millora les propietats d'arrencada i disminueix els sorolls.", "loc": "Bases d'electricitat, cap. 3, 3.4 Motor amb rotor en gàbia d'esquirol (pàg. 39)"}, {"sec": 3, "text": "Quin tipus d'aplicació és pròpia del motor de corrent continu compound?", "opts": ["Les que requereixen un par constant amb qualsevol velocitat", "Les que requereixen elevada potència a l'arrencada", "Les que requereixen variacions de velocitat i de par", "Les que requereixen una velocitat constant en qualsevol càrrega"], "ans": 0, "expl": "El compound s'usa quan cal un par de força constant, independentment de la velocitat; l'elevada potència a l'arrencada és del motor sèrie i la velocitat constant, del shunt.", "loc": "Bases d'electricitat, cap. 3, 3.3 Motors elèctrics de corrent continu (pàg. 34)"}, {"sec": 5, "text": "Per quin element passa el corrent altern d'alta tensió en el seu camí de les centrals productores a les subestacions de tracció?", "opts": ["Per transformadors", "Per parallamps de catenària", "Per seccionadors de línia", "Per rectificadors de corrent"], "ans": 0, "expl": "El requadre diu que les línies transporten i distribueixen corrent altern d'alta tensió «passant per transformadors».", "loc": "Bases d'electricitat, cap. 5, Recorda que… · 5.2 Línies de transport (pàg. 48)"}, {"sec": 2, "text": "Qui va inventar el relé i en quin any?", "opts": ["Michael Faraday, l'any 1831", "William Gilbert, l'any 1600", "Joseph Henry, l'any 1835", "James Prescott Joule, l'any 1841"], "ans": 2, "expl": "El manual indica que el relé va ser inventat per Joseph Henry l'any 1835.", "loc": "Bases d'electricitat, cap. 2, 2.5 Electroimants i relés (pàg. 28)"}, {"sec": 3, "text": "Què caracteritza la velocitat de gir d'un motor síncron?", "opts": ["És inversament proporcional a la freqüència de la xarxa", "És directament proporcional a la tensió de la xarxa", "Depèn del lliscament entre el camp de l'estator i el del rotor", "És directament proporcional a la freqüència de la xarxa"], "ans": 3, "expl": "En el síncron els camps de l'estator i del rotor giren sincronitzats i la velocitat és directament proporcional a la freqüència de la xarxa.", "loc": "Bases d'electricitat, cap. 3, 3.4 Motor síncron (pàg. 38)"}, {"sec": 1, "text": "En la fórmula I = Q/t, en quina unitat es mesura la quantitat de càrrega elèctrica Q?", "opts": ["En coulombs", "En watts", "En joules", "En amperes"], "ans": 0, "expl": "El manual indica que Q és la quantitat de càrrega elèctrica i es mesura en coulombs, i t en segons.", "loc": "Bases d'electricitat, cap. 1, 1.5 Intensitat del corrent elèctric (pàg. 12)"}, {"sec": 1, "text": "Quina és l'única línia de corrent continu d'alta tensió (HVDC) que hi ha a Espanya, segons el manual?", "opts": ["La que uneix la península amb Portugal", "La que uneix la península amb França", "La que uneix la península amb les Canàries", "La que uneix la península amb les Balears"], "ans": 3, "expl": "El manual diu que a Espanya només hi ha una línia HVDC: la que uneix la península amb les Balears; les altres transporten corrent altern.", "loc": "Bases d'electricitat, cap. 1, 1.5.2 Corrent altern (pàg. 14)"}, {"sec": 5, "text": "Quantes vegades es transforma el corrent elèctric en una xarxa d'electrificació ferroviària, segons el manual?", "opts": ["Cap vegada: arriba igual als motors", "Dues vegades: a la subestació i a la unitat", "Una vegada: només a la subestació", "Tres vegades: subestació, catenària i unitat"], "ans": 1, "expl": "Primer s'obté continu a la subestació (rectificador) i després altern a la unitat (inversor).", "loc": "Bases d'electricitat, cap. 5, 5.10 Inversor-ondulador (pàg. 54)"}, {"sec": 4, "text": "Quin dels esdeveniments següents registra un tacògraf durant la conducció?", "opts": ["La temperatura del motor de tracció", "El temps d'aturada amb el motor en marxa", "La tensió de la catenària en cada tram", "El consum d'energia de la bateria"], "ans": 1, "expl": "El tacògraf registra, entre d'altres, el temps d'aturada amb el motor en marxa (ralentí).", "loc": "Bases d'electricitat, cap. 4, 4.5 Tacògraf (pàg. 45)"}, {"sec": 2, "text": "Quin aparell quotidià cita el manual com a bon exemple d'aplicació de l'electroimant?", "opts": ["La bombeta d'una bicicleta", "El calefactor elèctric", "El timbre de campana", "El soldador elèctric"], "ans": 2, "expl": "El timbre de campana és el bon exemple d'electroimant: en prémer el polsador, el camp magnètic atrau el martell.", "loc": "Bases d'electricitat, cap. 2, 2.5 Electroimants i relés (pàg. 28)"}, {"sec": 5, "text": "Entre quins valors varia la tensió d'alimentació d'una catenària en corrent altern?", "opts": ["Entre 15 i 25 kV", "Entre 30 i 66 kV", "Entre 3 i 10 kV", "Entre 600 V i 3 kV"], "ans": 0, "expl": "El manual indica 600 V–3 kV en continu i 15–25 kV en altern.", "loc": "Bases d'electricitat, cap. 5, 5.5 Catenària (pàg. 50)"}, {"sec": 6, "text": "Per què alguns parallamps acaben en estructura multipunta?", "opts": ["Per alimentar la catenària en cas de tall", "Per substituir el cable de connexió a terra", "Per augmentar-ne l'efectivitat", "Per reduir-ne el cost de la instal·lació"], "ans": 2, "expl": "El manual diu que a vegades acaben en estructura multipunta per augmentar-ne l'efectivitat.", "loc": "Bases d'electricitat, cap. 6, 6.2 Parallamps (pàg. 56)"}, {"sec": 3, "text": "Per quins motors han estat substituïts els de corrent continu en la tracció ferroviària actual?", "opts": ["Per motors d'inducció de corrent altern", "Per motors universals de bobinat auxiliar", "Per motors síncrons de corrent monofàsic", "Per motors de corrent continu d'imants permanents"], "ans": 0, "expl": "El manual indica que els motors CC han estat substituïts per moderns motors d'inducció de corrent altern.", "loc": "Bases d'electricitat, cap. 3, 3.3 Motors elèctrics de corrent continu (pàg. 35)"}, {"sec": 2, "text": "Quin efecte té augmentar el nombre d'espires del conductor sobre la FEM induïda?", "opts": ["No la modifica, només canvia la freqüència", "L'anul·la mentre l'imant es mou", "La disminueix, però el corrent augmenta", "L'augmenta, i amb ella el corrent generat"], "ans": 3, "expl": "Augmentar el nombre d'espires és una de les maneres d'incrementar la FEM induïda i el corrent elèctric generat.", "loc": "Bases d'electricitat, cap. 2, 2.4.2 Inducció electromagnètica (pàg. 26)"}, {"sec": 5, "text": "Quin és el tipus de pantògraf que més s'utilitza, segons el manual?", "opts": ["El de doble carril lateral", "El de braç articulat", "El de barra rígida fixa", "El de braç telescòpic"], "ans": 1, "expl": "El manual indica que el pantògraf més utilitzat és el de braç articulat amb la ròtula en la direcció del moviment o al revés.", "loc": "Bases d'electricitat, cap. 5, 5.6 Pantògraf (pàg. 52)"}, {"sec": 1, "text": "Què els passa a la resta de receptors d'un circuit en sèrie si un d'ells s'espatlla o es desconnecta?", "opts": ["Funcionen amb una tensió més alta", "Funcionen amb un corrent més gran", "Continuen funcionant amb normalitat", "Deixen de funcionar tots"], "ans": 3, "expl": "En sèrie, si un receptor s'espatlla o es desconnecta, la resta deixa de funcionar, perquè el circuit queda obert.", "loc": "Bases d'electricitat, cap. 1, 1.6.1 Connexió de resistències en sèrie (pàg. 17)"}, {"sec": 5, "text": "Quin d'aquests sistemes de baixa tensió de la unitat pot continuar funcionant gràcies a les bateries?", "opts": ["Els motors de tracció trifàsics", "Les portes i la ventilació", "L'inversor de tracció", "El rectificador de la subestació"], "ans": 1, "expl": "Les bateries garanteixen el funcionament dels dispositius de baixa tensió: portes, ventilació, il·luminació, comunicació i control.", "loc": "Bases d'electricitat, cap. 5, 5.9 Bateries (pàg. 54)"}, {"sec": 1, "text": "Amb quina freqüència canvia normalment de sentit la circulació d'electrons en el corrent altern?", "opts": ["500 vegades per segon (500 Hz)", "25 vegades per segon (25 Hz)", "50 vegades per segon (50 Hz)", "150 vegades per segon (150 Hz)"], "ans": 2, "expl": "El manual indica que el corrent altern canvia de sentit cíclicament, normalment 50 vegades per segon (50 Hz).", "loc": "Bases d'electricitat, cap. 1, 1.5.2 Corrent altern (pàg. 13)"}, {"sec": 1, "text": "Tres receptors connectats en paral·lel consumeixen 2 A, 3 A i 5 A, respectivament. Quin és el corrent total del circuit?", "opts": ["5 A", "3,3 A", "10 A", "30 A"], "ans": 2, "expl": "En paral·lel el corrent total és la suma dels corrents de cada receptor: 2 + 3 + 5 = 10 A.", "loc": "Bases d'electricitat, cap. 1, 1.6.2 Connexió de resistències en paral·lel (pàg. 17)"}, {"sec": 2, "text": "A l'experiment de Faraday de 1831, quin nom rep l'imant portador del camp magnètic?", "opts": ["Receptor", "Rotor", "Induït", "Inductor"], "ans": 3, "expl": "El manual anomena inductor l'imant portador del camp magnètic i induït el corrent elèctric produït.", "loc": "Bases d'electricitat, cap. 2, 2.4.2 Inducció electromagnètica (pàg. 25)"}, {"sec": 5, "text": "Quina tensió correspon a una línia de transport de segona categoria, segons el manual?", "opts": ["Entre 1 kV i 30 kV", "Entre 30 i 66 kV", "Inferior a 1 kV", "Superior a 66 kV"], "ans": 1, "expl": "Primera: >66 kV; segona: entre 30 i 66 kV; tercera: entre 1 i 30 kV.", "loc": "Bases d'electricitat, cap. 5, 5.2 Línies de transport (pàg. 47)"}, {"sec": 2, "text": "Com es poden observar clàssicament les línies del camp magnètic d'un imant?", "opts": ["Amb sal fina escampada sobre un full i un imant a sota", "Amb llimadures de coure sobre un full i un imant a sota", "Amb una pila connectada a un full de paper i a un imant", "Amb llimadures de ferro sobre un full i un imant a sota"], "ans": 3, "expl": "Les llimadures de ferro, col·locades sobre un full amb l'imant a sota, dibuixen les línies de camp magnètic.", "loc": "Bases d'electricitat, cap. 2, 2.3 Camp i flux magnètic (pàg. 23)"}, {"sec": 6, "text": "Quina funció tenen els elements de protecció d'una instal·lació elèctrica ferroviària?", "opts": ["Generar el corrent necessari per alimentar els motors", "Protegir i desconnectar elements en cas de mal funcionament", "Accionar dispositius de seguretat i activar elements de maniobra", "Transformar la tensió de la línia de transport"], "ans": 1, "expl": "Els elements de protecció protegeixen i desconnecten elements en moments determinats o en cas de mal funcionament i eviten contactes directes.", "loc": "Bases d'electricitat, cap. 6, 6.1 Introducció (pàg. 56)"}, {"sec": 3, "text": "Què vol dir que alguns motors elèctrics són reversibles?", "opts": ["Que converteixen l'energia mecànica en calor", "Que també poden actuar com a generadors de corrent", "Que funcionen amb corrent continu i altern alhora", "Que només es poden fer servir en trens i cotxes híbrids"], "ans": 1, "expl": "El manual diu que són reversibles els motors que també poden fer de generadors, convertint energia mecànica en elèctrica.", "loc": "Bases d'electricitat, cap. 3, 3.1 Introducció (pàg. 31)"}, {"sec": 6, "text": "Quin d'aquests circuits de la unitat s'activa amb relés, segons el manual?", "opts": ["Rectificació del corrent altern", "Mesura de les revolucions de l'eix", "Transformació de la tensió de línia", "Pujada i baixada del pantògraf"], "ans": 3, "expl": "El manual cita relés per a il·luminació, portes, frenada, pujada i baixada de pantògraf i climatització.", "loc": "Bases d'electricitat, cap. 6, 6.5 Relés (pàg. 58)"}, {"sec": 1, "text": "Una resistència de 10 Ω és travessada per un corrent de 3 A. Quina potència dissipa?", "opts": ["90 W", "30 W", "300 W", "900 W"], "ans": 0, "expl": "P = I²·R = 3²·10 = 9·10 = 90 W.", "loc": "Bases d'electricitat, cap. 1, 1.8 Potència i energia elèctrica (pàg. 21)"}, {"sec": 2, "text": "Quina és una de les principals aplicacions de les dinamos, segons el manual?", "opts": ["Accionar els contactes d'un relé", "Regular el valor d'una resistència", "Rectificar el corrent altern", "Obtenir energia hidroelèctrica"], "ans": 3, "expl": "En una central hidroelèctrica, un cabal d'aigua fa rotar la bobina de la dinamo.", "loc": "Bases d'electricitat, cap. 2, 2.4.2 Inducció electromagnètica (pàg. 27)"}, {"sec": 5, "text": "Com transporten l'electricitat les catenàries flexibles?", "opts": ["A través d'un carril rígid", "A través d'un tercer carril lateral", "A través d'un feeder negatiu", "A través d'un cable"], "ans": 3, "expl": "Les catenàries flexibles transporten l'electricitat a través d'un cable (les rígides, a través d'un carril rígid).", "loc": "Bases d'electricitat, cap. 5, 5.5 Catenària (pàg. 50)"}, {"sec": 1, "text": "A quants ohms equival 1 MΩ (un megaohm), segons el manual?", "opts": ["100 000 Ω", "10 000 000 Ω", "1 000 000 Ω", "1 000 Ω"], "ans": 2, "expl": "1 MΩ = 10⁶ Ω = 10³ kΩ.", "loc": "Bases d'electricitat, cap. 1, 1.6 Resistències elèctriques (pàg. 15)"}, {"sec": 5, "text": "Quina és la funció d'una subestació de tracció respecte de la tensió de la línia trifàsica de transport?", "opts": ["Convertir-la en tensió trifàsica per als motors del tren", "Adaptar-la a les condicions de la catenària i el feeder", "Elevar-la per reduir les pèrdues per efecte Joule al transport", "Distribuir-la directament als motors de tracció de la unitat"], "ans": 1, "expl": "La subestació transforma i adapta la tensió de la línia trifàsica a les condicions necessàries a la catenària i el feeder.", "loc": "Bases d'electricitat, cap. 5, 5.3 Subestació de tracció (pàg. 48)"}, {"sec": 3, "text": "Què ha de ser necessàriament igual entre el rotor bobinat i l'estator al qual està associat?", "opts": ["El nombre de rodaments", "El nombre de pols", "El nombre de ranures inclinades", "El nombre de fases"], "ans": 1, "expl": "El manual diu que el nombre de fases del rotor no ha de ser el mateix que el de l'estator, però sí el nombre de pols.", "loc": "Bases d'electricitat, cap. 3, 3.4 Motor amb rotor bobinat (pàg. 39)"}, {"sec": 1, "text": "Quin tipus de generador és una pila, segons la classificació del manual?", "opts": ["Un generador químic", "Un generador fotovoltaic", "Un generador tèrmic", "Un generador mecànic"], "ans": 0, "expl": "Les piles i bateries són generadors químics: converteixen en electricitat l'energia de certes reaccions químiques.", "loc": "Bases d'electricitat, cap. 1, 1.4 Generadors elèctrics (pàg. 11)"}, {"sec": 3, "text": "De quins elements consta el dispositiu auxiliar que ajuda a arrencar un motor monofàsic?", "opts": ["D'un interruptor centrífug o condensador i un debanat auxiliar", "D'un interruptor magnetotèrmic i unes escombretes auxiliars", "D'un transformador o un rectificador i un debanat de gàbia", "D'un relé temporitzat o un fusible i un anell col·lector"], "ans": 0, "expl": "El dispositiu auxiliar consta d'un interruptor centrífug o d'un condensador (que deixen d'actuar a certes revolucions) i d'un debanat auxiliar.", "loc": "Bases d'electricitat, cap. 3, 3.4 Motors elèctrics de corrent altern (pàg. 37)"}, {"sec": 3, "text": "Com s'alimenten els debanats de l'estator i del rotor en un motor de corrent continu d'excitació independent?", "opts": ["Cadascun amb una font de tensió diferent", "Tots dos amb una mateixa font, en sèrie", "Només el del rotor, perquè l'estator és un imant", "Tots dos amb una mateixa font, en paral·lel"], "ans": 0, "expl": "En l'excitació independent els debanats no estan connectats entre si i s'alimenten de fonts de tensió diferents.", "loc": "Bases d'electricitat, cap. 3, 3.3 Motors elèctrics de corrent continu (pàg. 34)"}, {"sec": 3, "text": "A què és proporcional el parell motor d'un motor de corrent continu, segons el manual?", "opts": ["Al camp magnètic giratori", "A la freqüència del corrent", "Al corrent de l'induït", "A la velocitat de l'eix"], "ans": 2, "expl": "Segons la taula, en CC el parell motor és proporcional al corrent de l'induït; en CA depèn del camp magnètic giratori.", "loc": "Bases d'electricitat, cap. 3, 3.5 Diferències entre els motors CC i CA (pàg. 40)"}, {"sec": 2, "text": "Quin tipus de circuit es pot connectar als terminals dels contactes d'un relé?", "opts": ["Un de potència, a tensions molt superiors, en continu o altern", "Un de potència, només a la mateixa tensió, en corrent altern", "Un de potència, només a tensions inferiors, en corrent continu", "Un de control, de 24 a 72 volts, només en corrent altern"], "ans": 0, "expl": "Per l'armadura va un circuit de control en continu a baixa tensió; pels contactes, un de potència a tensions molt superiors, en continu o en altern.", "loc": "Bases d'electricitat, cap. 2, 2.5 Electroimants i relés (pàg. 29)"}, {"sec": 3, "text": "Per què els motors de corrent altern són actualment els més utilitzats, segons el manual?", "opts": ["Perquè no necessiten estator ni rotor per funcionar", "Perquè només funcionen amb potències molt baixes", "Pel seu major rendiment i el manteniment barat", "Pel seu parell d'arrencada baix i la velocitat fixa"], "ans": 2, "expl": "La taula diu que els de CA són els més utilitzats pel seu major rendiment i un manteniment barat.", "loc": "Bases d'electricitat, cap. 3, 3.5 Diferències entre els motors CC i CA (pàg. 40)"}], "dev": [{"title": "Els generadors elèctrics", "text": "Explica què és un generador elèctric, quins tipus de generadors descriu el manual i quin paper tenen en un circuit.", "ref": "1.2, 1.3, 1.4 i 1.7 (pàg. 9–12 i 18)", "pts": ["Funció: establir una diferència de potencial (tensió) entre els extrems del conductor, arrencant electrons d'uns àtoms i afegint-los a uns altres", "La tensió és l'impuls perquè una càrrega circuli per un circuit tancat; com més diferència de potencial, més flux de càrrega; es mesura en volts (V)", "Generadors químics: piles i bateries, que converteixen en electricitat l'energia de reaccions químiques", "Generadors mecànics: alternadors i dinamos, que converteixen l'energia mecànica en elèctrica (p. ex., un alternador en una central hidroelèctrica)", "Generadors fotovoltaics: plaques solars que converteixen l'energia del sol en energia elèctrica", "FEM (ε): treball que fa el generador per passar una càrrega positiva del pol negatiu al positiu per l'interior", "En un circuit, subministren la tensió: piles, bateries i generadors rotatius en CC, i alternadors en CA"]}, {"title": "L'efecte Joule i la potència dissipada", "text": "Explica en què consisteix l'efecte Joule, quina llei el descriu i com es pot limitar la potència perduda en forma de calor.", "ref": "1.7.2 i 1.8 (pàg. 19–21) i 1.5.2 (pàg. 14)", "pts": ["Efecte Joule: un corrent que circula per un conductor l'escalfa, per la interacció dels electrons amb els àtoms del material; descobert per James Prescott Joule el 1841", "Llei de Joule: la calor és proporcional al quadrat de la intensitat i a la resistència; Q = I²·R·t (joules, amperes, ohms, segons)", "Aplicacions útils: calefactors elèctrics, soldadors i assecadors", "Resistències dissipadores: absorbeixen l'excés de corrent i el transformen en calor cedida a l'ambient; n'hi ha a la part superior de les unitats d'FGC", "Potència dissipada: part de la potència que es perd en forma de calor per efecte Joule; P = I·V = I²·R", "Com més petit és el corrent, menor és la potència dissipada", "En el transport a grans distàncies es minimitza amb amperatge baix i voltatge alt; el corrent continu d'alta tensió (HVDC) també provoca menys pèrdues"]}, {"title": "La resistència elèctrica: materials, tipus i connexió", "text": "Descriu la resistència elèctrica: de què depèn, com es classifiquen els materials i els dispositius resistius, i com es calcula la resistència total en sèrie i en paral·lel.", "ref": "1.6, 1.6.1 i 1.6.2 (pàg. 15–18)", "pts": ["Definició: dificultat que oposa un material a ser travessat per un corrent; es mesura en ohms (Ω), amb múltiples kΩ (10³ Ω) i MΩ (10⁶ Ω)", "Depèn del material, la longitud i la secció: R = ρ·L/S, amb ρ la resistivitat (Ω·mm²/m), L en metres i S en mm²", "Conductors (resistivitat baixa): aigua, alumini, coure i metalls; aïllants (resistivitat alta): fusta, vidre i ceràmics; semiconductors: silici i germani", "Dispositius: resistències fixes, variables (potenciòmetres o reòstats, lineals i rotatius) i dependents de la llum, la temperatura o la tensió", "Sèrie: mateix corrent, tensió repartida, si un receptor falla la resta s'atura; Req = R1 + R2 + … + Rn", "Paral·lel: mateixa tensió, el corrent total és la suma dels parcials, si un falla la resta continua; 1/Req = 1/R1 + 1/R2 + … + 1/Rn", "Exemples del manual: 100 Ω + 300 Ω en sèrie = 400 Ω; 20, 30 i 30 Ω en paral·lel ≈ 8,57 Ω"]}, {"title": "Els motors de corrent continu: tipus, connexió i aplicacions", "text": "Descriu els motors elèctrics de corrent continu: elements que necessiten, els quatre tipus segons la connexió dels debanats i les aplicacions de cada un.", "ref": "3.3 Motors elèctrics de corrent continu (pàgs. 34-35)", "pts": ["Necessiten escombretes (connexió estator-rotor) i delgues (el corrent entra i surt sempre en la mateixa direcció per les espires)", "Motor d'imants permanents: l'estator no porta bobina; per a joguines i motors petits", "Motor sèrie: debanats en sèrie; elevada potència a l'arrencada, molt usat al ferrocarril", "Motor shunt: debanats en paral·lel; aplicacions de velocitat constant", "Motor compound: estator dividit, una part en sèrie i l'altra en paral·lel amb el rotor; par constant independentment de la velocitat", "Motor d'excitació independent: debanats no connectats i amb fonts diferents; aplicacions que requereixen variar velocitat i par", "Velocitat regulable fàcilment variant la tensió; avui substituïts en tracció ferroviària per motors d'inducció de CA"]}, {"title": "Motors síncrons i asíncrons de corrent altern", "text": "Compara els motors síncrons i els asíncrons de corrent altern i descriu els dos tipus de motors asíncrons trifàsics.", "ref": "3.4 Motors elèctrics de corrent altern (pàgs. 37-40)", "pts": ["Síncron: el camp giratori de l'estator gira a la mateixa velocitat que el del rotor; velocitat proporcional a la freqüència de la xarxa", "Síncron: poc usat com a motor, molt usat com a generador en centrals hidroelèctriques i termoelèctriques", "Asíncron: el camp de l'estator gira més ràpid que el del rotor; la diferència és el lliscament", "Gairebé tots els motors industrials són asíncrons; els trifàsics són els més utilitzats", "Rotor bobinat: debanats semblants als de l'estator, mateix nombre de pols, connectats a anells col·lectors sobre l'eix", "Rotor en gàbia d'esquirol: extrems dels conductors en curtcircuit, sense connexió exterior; ranures inclinades milloren l'arrencada i redueixen sorolls; és el més utilitzat"]}, {"title": "Corrent monofàsic i trifàsic i motors de CA", "text": "Explica les diferències entre el corrent monofàsic i el trifàsic i com afecten el funcionament i l'arrencada dels motors de corrent altern.", "ref": "3.4 Motors elèctrics de corrent altern (pàgs. 35-37)", "pts": ["Monofàsica: una fase i un neutre; trifàsica: tres fases i un neutre", "Trifàsica: tres corrents desfasats 120º; 400 V entre fases i 230 V entre fase i neutre", "Motors monofàsics: petites potències (menys d'1 kW), construcció senzilla, baix cost; aspiradors, ventiladors, rentadores", "Problema dels monofàsics: no tenen parell d'arrencada i no arrenquen sols", "Dispositiu auxiliar: interruptor centrífug o condensador i debanat auxiliar, que deixen d'actuar a certes revolucions", "Trifàsics: habituals a la indústria; l'estator genera un camp magnètic giratori que indueix corrent al rotor, el qual segueix el camp i gira"]}, {"title": "Sistema d'electrificació ferroviària d'FGC: classificació i catenària", "text": "Explica com es classifiquen els sistemes d'electrificació ferroviària, quines són les característiques del d'FGC i com és la catenària (tensions, polaritat i tipus).", "ref": "5.1 Introducció i 5.5 Catenària (pàgs. 47, 50)", "pts": ["Es classifiquen segons voltatge, tipus de corrent (CC o CA) i sistema contactor (rial conductor o catenària)", "FGC: 1500 V, corrent continu i sistema contactor per catenària", "Catenària: 600 V–3 kV en continu i 15–25 kV en altern", "El pol positiu és la mateixa catenària; el negatiu o de retorn és un dels carrils", "Catenàries flexibles (cable, major part de línies i trajectes exteriors) i rígides (carril rígid, trams soterrats)", "Les dues es fan servir a FGC"]}, {"title": "Línies de transport i subestacions de tracció", "text": "Descriu el paper de les línies de transport i de les subestacions de tracció, i explica per què s'eleva la tensió i quines diferències hi ha entre els dos tipus de subestació.", "ref": "5.2 Línies de transport i 5.3 Subestació de tracció (pàgs. 47-49)", "pts": ["Les línies transporten la potència de les centrals a les subestacions, en altern trifàsic i alta tensió", "S'eleva la tensió amb transformadors per disminuir la intensitat i evitar l'efecte Joule i les pèrdues", "Categories: >66 kV, 30–66 kV i 1–30 kV", "La subestació transforma i adapta la tensió a les condicions de catenària i feeder", "Subestacions en CA (altern a altern) i en CC (altern a continu, amb rectificadors)", "A FGC són de CC: de 66 kVca a 1,5 kVcc"]}, {"title": "Feeder, seccionador i circuit de retorn", "text": "Explica quin paper tenen el feeder, el seccionador de línia i el circuit de retorn en l'alimentació d'una línia ferroviària i com es relacionen.", "ref": "5.4 Feeder, 5.7 Seccionador de línia i 5.8 Circuit de retorn (pàgs. 49, 53-54)", "pts": ["El feeder és un cable que acompanya la via i alimenta les seccions de catenària", "Feeder positiu: porta el corrent de les subestacions a les seccions de catenària; es connecta als fils de contacte", "Feeder d'acompanyament: segon cable en paral·lel per reforçar trams de molta demanda", "Les seccions són aïllades entre si: es pot aïllar una secció per manteniment sense afectar la resta", "El seccionador obre/tanca circuits i aïlla una zona de forma visible perquè no hi passi corrent", "El retorn torna el corrent a les subestacions pels carrils i, molt rarament, per un feeder negatiu"]}, {"title": "Bateries i altres sistemes d'alimentació dels vehicles", "text": "Explica per a què serveixen les bateries d'una unitat ferroviària i descriu els altres sistemes d'alimentació dels motors de tracció que no es basen només en l'inversor-ondulador.", "ref": "5.9 Bateries i 5.11 Altres sistemes d'alimentació (pàgs. 54-55)", "pts": ["La bateria acumula energia elèctrica i garanteix el subministrament en cas de tall de tensió", "Permet la posada en marxa de UT i locomotores abans dels sistemes principals (pantògraf o motor dièsel)", "Alimentació d'emergència en casos crítics, com el sistema de frenada", "Manté els dispositius de baixa tensió: portes, ventilació, il·luminació, comunicació i control", "Locomotores de mercaderies: alternador accionat per motor dièsel abans de l'inversor-ondulador", "Vehicles antics: motors alimentats directament amb corrent de la catenària, sense conversions"]}], "sec": {"1": "Cap. 1 · Conceptes elementals d'electricitat", "2": "Cap. 2 · Magnetisme", "3": "Cap. 3 · Màquines i motors elèctrics", "4": "Cap. 4 · Aparells de mesura", "5": "Cap. 5 · Elements d'electrificació ferroviària", "6": "Cap. 6 · Elements de control i protecció"}};
+  var Q = D.q, DEV = D.dev, SEC = D.sec, PASS = 7, PEN = 0.25, LET = ["A", "B", "C", "D"];
+  var $ = function (id) { return document.getElementById(id); };
+  function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt !== undefined) e.textContent = txt; return e; }
+  function fmt(n, d) { d = d === undefined ? 2 : d; return n.toLocaleString("ca-ES", { minimumFractionDigits: d, maximumFractionDigits: d }); }
+  var S = { mode: "exam", order: [], ans: {}, i: 0, confirm: false, done: false, filter: "fail" };
+
+  function show(name) {
+    ["home", "quiz", "result", "dev"].forEach(function (v) { $("v-" + v).hidden = v !== name; });
+    var isDev = name === "dev";
+    $("tab-test").setAttribute("aria-selected", String(!isDev));
+    $("tab-dev").setAttribute("aria-selected", String(isDev));
+    window.scrollTo(0, 0);
+  }
+  function home() {
+    $("btn-resume").hidden = !(S.order.length && !S.done);
+    show("home");
+  }
+
+  /* ---------- Inici ---------- */
+  var sel = $("sel-bloc");
+  var o0 = el("option", "", "Tots els capítols (" + Q.length + " preguntes)"); o0.value = "0"; sel.append(o0);
+  Object.keys(SEC).forEach(function (k) {
+    var n = Q.filter(function (q) { return q.sec === +k; }).length;
+    var o = el("option", "", SEC[k] + " (" + n + ")"); o.value = k; sel.append(o);
+  });
+  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function start(ids, mode, doShuffle) {
+    S.mode = mode; S.order = doShuffle ? shuffle(ids.slice()) : ids.slice(); S.ans = {}; S.i = 0; S.confirm = false; S.done = false;
+    show("quiz"); renderQ();
+  }
+  $("btn-start").onclick = function () {
+    var mode = document.querySelector("input[name=mode]:checked").value;
+    var b = +sel.value;
+    var ids = []; Q.forEach(function (q, i) { if (!b || q.sec === b) ids.push(i); });
+    var nq = +$("sel-n").value; if (nq && nq < ids.length) ids = shuffle(ids.slice()).slice(0, nq);
+    start(ids, mode, $("chk-shuffle").checked);
+  };
+  $("btn-resume").onclick = function () { show("quiz"); renderQ(); };
+
+  /* ---------- Test ---------- */
+  function whereBox(q) {
+    var d = el("div", "where");
+    var b = el("b", "", "On trobar-ho: ");
+    d.append(b, document.createTextNode(q.loc + "."));
+    return d;
+  }
+  function renderQ() {
+    var id = S.order[S.i], q = Q[id], total = S.order.length, given = S.ans[id];
+    $("q-count").textContent = "Pregunta " + (S.i + 1) + " de " + total;
+    $("q-sec").textContent = SEC[q.sec].split(" · ")[0];
+    $("q-bar").style.width = (Object.keys(S.ans).length / total * 100) + "%";
+    $("q-text").textContent = q.text;
+    var locked = S.mode === "study" && given !== undefined;
+    var box = $("q-opts"); box.replaceChildren();
+    q.opts.forEach(function (o, k) {
+      var b = el("button", "opt"); b.type = "button"; b.dataset.k = k;
+      b.append(el("span", "opt-l", LET[k]), el("span", "opt-t", o));
+      if (given === k) b.classList.add("sel");
+      if (locked) { if (k === q.ans) b.classList.add("ok"); else if (given === k) b.classList.add("bad"); b.disabled = true; }
+      box.append(b);
+    });
+    var fb = $("q-fb"); fb.replaceChildren(); fb.hidden = !locked;
+    if (locked) {
+      var good = given === q.ans;
+      fb.className = "fb " + (good ? "good" : "wrong");
+      fb.append(el("b", "", good ? "Correcte" : "Incorrecte. La resposta correcta és la " + LET[q.ans] + "."));
+      fb.append(el("p", "", q.expl));
+      fb.append(whereBox(q));
+    }
+    var grid = $("navgrid"); grid.replaceChildren();
+    S.order.forEach(function (qid, idx) {
+      var b = el("button", "nav-n", String(idx + 1)); b.type = "button"; b.dataset.i = idx;
+      b.setAttribute("aria-label", "Anar a la pregunta " + (idx + 1));
+      var a = S.ans[qid];
+      if (a !== undefined) {
+        if (S.mode === "study") b.classList.add(a === Q[qid].ans ? "ok" : "bad"); else b.classList.add("done");
+      }
+      if (idx === S.i) b.classList.add("cur");
+      grid.append(b);
+    });
+    $("btn-prev").disabled = S.i === 0;
+    $("btn-next").disabled = S.i === total - 1;
+    var un = total - Object.keys(S.ans).length;
+    $("confirm").hidden = !S.confirm;
+    if (S.confirm) $("confirm-t").textContent = "Tens " + un + (un === 1 ? " pregunta sense contestar" : " preguntes sense contestar") + ". Les que quedin en blanc valen 0 punts.";
+  }
+  $("q-opts").addEventListener("click", function (e) {
+    var b = e.target.closest(".opt"); if (!b || b.disabled) return;
+    var id = S.order[S.i], k = +b.dataset.k;
+    if (S.mode === "exam" && S.ans[id] === k) delete S.ans[id]; else S.ans[id] = k;
+    S.confirm = false; renderQ();
+  });
+  $("navgrid").addEventListener("click", function (e) {
+    var b = e.target.closest(".nav-n"); if (!b) return; S.i = +b.dataset.i; S.confirm = false; renderQ(); window.scrollTo(0, 0);
+  });
+  $("btn-prev").onclick = function () { if (S.i > 0) { S.i--; S.confirm = false; renderQ(); window.scrollTo(0, 0); } };
+  $("btn-next").onclick = function () { if (S.i < S.order.length - 1) { S.i++; S.confirm = false; renderQ(); window.scrollTo(0, 0); } };
+  $("btn-home").onclick = home;
+  $("btn-back").onclick = function () { S.confirm = false; renderQ(); };
+  $("btn-finish").onclick = function () {
+    var un = S.order.length - Object.keys(S.ans).length;
+    if (un > 0 && !S.confirm) { S.confirm = true; renderQ(); $("confirm").scrollIntoView({ block: "center" }); return; }
+    finish();
+  };
+  $("btn-confirm").onclick = finish;
+
+  /* ---------- Resultat ---------- */
+  function compute() {
+    var r = { ok: 0, bad: 0, blank: 0, per: {}, N: S.order.length };
+    S.order.forEach(function (id) {
+      var q = Q[id], a = S.ans[id], p = r.per[q.sec] || (r.per[q.sec] = { ok: 0, n: 0 });
+      p.n++;
+      if (a === undefined) r.blank++; else if (a === q.ans) { r.ok++; p.ok++; } else r.bad++;
+    });
+    r.net = Math.max(0, r.ok - PEN * r.bad);
+    r.grade = r.net / r.N * 10;
+    r.pct = r.ok / r.N * 100;
+    r.need = PASS / 10 * r.N;
+    return r;
+  }
+  function finish() {
+    S.done = true; S.confirm = false; S.filter = "fail";
+    var r = compute();
+    var card = $("res-card"); card.replaceChildren();
+    var pass = r.grade >= PASS;
+    var g = el("div", "grade", fmt(r.grade)); g.append(el("small", "", " / 10"));
+    card.append(el("div", "label", S.mode === "exam" ? "Resultat de l'examen" : "Resultat del mode estudi"), g);
+    var pill = el("span", "pill " + (pass ? "pass" : "fail"), pass ? "Apte · mínim 7" : "No apte · cal un 7");
+    var pr = el("div", "row"); pr.append(pill);
+    card.append(pr);
+    var msg = pass
+      ? "Has superat el 7 amb " + fmt(r.net) + " punts nets de " + r.N + "."
+      : "Tens " + fmt(r.net) + " punts nets de " + r.N + ". Per arribar al 7 en calen " + fmt(r.need, 1) + ". Repassa els errors de sota i torna-ho a provar.";
+    card.append(el("p", "note", msg));
+    var st = el("div", "stats");
+    [["Encerts", String(r.ok)], ["Errors", String(r.bad)], ["En blanc", String(r.blank)], ["% d'encert", fmt(r.pct, 0) + " %"], ["Punts nets", fmt(r.net)]].forEach(function (x) {
+      var s = el("div", "stat"); s.append(el("span", "label", x[0]), el("b", "", x[1])); st.append(s);
+    });
+    card.append(st);
+    card.append(el("p", "note", "Nota = (encerts − 0,25 × errors) ÷ " + r.N + " × 10"));
+    var bars = $("res-bars"); bars.replaceChildren();
+    Object.keys(r.per).sort().forEach(function (k) {
+      var p = r.per[k], pc = p.ok / p.n * 100;
+      var w = el("div"), h = el("div", "bar-h");
+      h.append(el("span", "", SEC[k].split(" · ")[1] || SEC[k]), el("b", "", p.ok + " / " + p.n));
+      var b = el("div", "bar " + (pc < 50 ? "low" : pc < 75 ? "mid" : "")); var i = el("i"); i.style.width = pc + "%"; b.append(i);
+      w.append(h, b); bars.append(w);
+    });
+    $("btn-retry").hidden = (r.bad + r.blank) === 0;
+    renderReview();
+    show("result");
+  }
+  function renderReview() {
+    var list = $("res-list"); list.replaceChildren();
+    document.querySelectorAll("#res-filter .chip").forEach(function (c) { c.setAttribute("aria-pressed", String(c.dataset.f === S.filter)); });
+    var shown = 0;
+    S.order.forEach(function (id, idx) {
+      var q = Q[id], a = S.ans[id];
+      var st = a === undefined ? "blank" : a === q.ans ? "ok" : "bad";
+      if (S.filter === "fail" && st === "ok") return;
+      if (S.filter === "ok" && st !== "ok") return;
+      shown++;
+      var it = el("article", "rev-item" + (st === "ok" ? " okk" : st === "blank" ? " blk" : ""));
+      var tag = el("div", "tag", (idx + 1) + ". " + (st === "ok" ? "Correcta" : st === "blank" ? "Sense resposta" : "Error"));
+      tag.style.color = st === "ok" ? "var(--ok)" : st === "blank" ? "var(--warn)" : "var(--bad)";
+      it.append(tag, el("div", "qt", q.text));
+      if (st === "bad") { var y = el("div", "ans"); y.append(el("span", "no", "La teva resposta: "), document.createTextNode(LET[a] + ") " + q.opts[a])); it.append(y); }
+      var c = el("div", "ans"); c.append(el("span", "yes", "Resposta correcta: "), document.createTextNode(LET[q.ans] + ") " + q.opts[q.ans])); it.append(c);
+      it.append(el("p", "ans", q.expl), whereBox(q));
+      list.append(it);
+    });
+    if (!shown) list.append(el("div", "card", S.filter === "fail" ? "No tens cap error ni cap pregunta en blanc. Molt bé." : "No hi ha preguntes en aquest filtre."));
+  }
+  $("res-filter").addEventListener("click", function (e) { var c = e.target.closest(".chip"); if (!c) return; S.filter = c.dataset.f; renderReview(); });
+  $("btn-retry").onclick = function () {
+    var ids = S.order.filter(function (id) { return S.ans[id] !== Q[id].ans; });
+    start(ids, "study", true);
+  };
+  $("btn-new").onclick = function () { S.order = []; S.done = false; home(); };
+
+  /* ---------- Desenvolupament ---------- */
+  var dl = $("dev-list");
+  DEV.forEach(function (d, i) {
+    var c = el("section", "card stack");
+    c.append(el("div", "label", "Pregunta " + (i + 1) + " · 10 punts"), el("h3", "", d.title), el("p", "", d.text));
+    var ta = el("textarea"); ta.id = "dev-ta-" + i; ta.placeholder = "Escriu aquí la teva resposta…"; ta.setAttribute("aria-label", "Resposta a la pregunta " + (i + 1));
+    var btn = el("button", "btn ghost", "Mostra la resposta model"); btn.type = "button";
+    var model = el("div", "model"); model.hidden = true;
+    model.append(el("b", "", "Punts clau"));
+    var ul = el("ul"); d.pts.forEach(function (p) { ul.append(el("li", "", p)); }); model.append(ul);
+    model.append(el("p", "dev-ref", "On trobar-ho: " + d.ref + "."));
+    btn.onclick = function () { model.hidden = !model.hidden; btn.textContent = model.hidden ? "Mostra la resposta model" : "Amaga la resposta model"; };
+    c.append(ta, btn, model); dl.append(c);
+  });
+
+  $("tab-test").onclick = home;
+  $("tab-dev").onclick = function () { show("dev"); };
+  home();
+})();
+</script>
